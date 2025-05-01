@@ -10,7 +10,7 @@ import { WorkspaceStorage } from "./workspace-storage";
  */
 export class WorkspaceEntryLogic {
 
-    public static listWorkspaces(workspaces: WorkspaceStorage, curOpenWorkspace: Workspace | undefined = undefined) {
+    public static listWorkspaces(workspaces: WorkspaceStorage, allWindowIds: (number | undefined)[]) {
         console.debug("listWorkspaces", workspaces)
 
         const workspaceDiv = document.getElementById("workspaces-list");
@@ -19,7 +19,7 @@ export class WorkspaceEntryLogic {
             return;
         }
         workspaceDiv.innerHTML = "";
-
+        
         // Add each workspace to the list, and add event listeners to the buttons.
         for (const workspace of Array.from(workspaces.values())) {
             const workspaceElement = this.addWorkspace(workspaceDiv, workspace);
@@ -28,20 +28,13 @@ export class WorkspaceEntryLogic {
             const editWorkspace = workspaceElement.querySelector('#edit-button');
             const deleteWorkspace = workspaceElement.querySelector('#delete-button');
 
-            // Add a class to the workspace if this window is the current workspace.
-            if (curOpenWorkspace?.uuid === workspace.uuid) {
-                workspaceElement.classList.add('workspace-current');
+            // Add a class to the workspace if it is open in a window.
+            if (allWindowIds.includes(workspace.windowId)) {
+                workspaceElement.classList.add('workspace-open');
             }
-            else {
-                // Don't allow the user to re-open the current workspace.
-                openWorkspace?.addEventListener('click', () => {
-                    this.workspaceClicked(workspace);
-                });
-            }
-
-            // settingsWorkspace?.addEventListener('click', () => {
-            //     this.workspaceSettingsClicked(workspace);
-            // });
+            openWorkspace?.addEventListener('click', () => {
+                this.workspaceClicked(workspace);
+            });
 
             editWorkspace?.addEventListener('click', (event) => {
                 event.stopPropagation();
@@ -125,11 +118,5 @@ export class WorkspaceEntryLogic {
             return;
         }
         PopupActions.deleteWorkspace(workspace);
-    }
-
-    public static async tabRemoved(tabId: number, removeInfo: chrome.tabs.TabRemoveInfo) {
-    }
-
-    public static async tabUpdated(tabId: number, changeInfo: chrome.tabs.TabChangeInfo, tab: chrome.tabs.Tab) {
     }
 }
