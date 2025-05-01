@@ -29,7 +29,7 @@ export class WorkspaceEntryLogic {
             const deleteWorkspace = workspaceElement.querySelector('#delete-button');
 
             // Add a class to the workspace if it is open in a window.
-            if (allWindowIds?.includes(workspace.windowId)) {
+            if (allWindowIds.includes(workspace.windowId)) {
                 workspaceElement.classList.add('workspace-open');
             }
             openWorkspace?.addEventListener('click', () => {
