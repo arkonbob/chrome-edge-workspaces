@@ -5,6 +5,7 @@ import { PageAddWorkspace } from "./pages/page-add-workspace";
 import { PageSettings } from "./pages/page-settings";
 import "./popup.css";
 import { StorageHelper } from "./storage-helper";
+import { Utils } from "./utils";
 import { WorkspaceEntryLogic } from "./workspace-entry-logic";
 import { WorkspaceStorage } from "./workspace-storage";
 
@@ -13,46 +14,13 @@ import { WorkspaceStorage } from "./workspace-storage";
  * Setup the listeners for the buttons
  */
 async function documentLoaded() {
-   chrome.tabs.onRemoved.addListener(WorkspaceEntryLogic.tabRemoved);
-   chrome.tabs.onUpdated.addListener(WorkspaceEntryLogic.tabUpdated);
    chrome.windows.onRemoved.addListener(windowRemoved);
    const workspaceStorage = await getWorkspaceStorage();
-   const curWindow = await chrome.windows.getCurrent();
-
-   // Check if the popup is opened from a workspace or not
-   const isWorkspace = isWindowWorkspace(curWindow.id, workspaceStorage);
-   console.debug("Window is workspace:", isWorkspace, curWindow);
    
-   if (isWorkspace) {
-      loadWorkspacePopup(workspaceStorage, curWindow.id);
-   }
-   else {
-      loadNonWorkspacePopup(workspaceStorage);
-   }
-}
-
-/**
- * Load the popup page for a non0workspace window.
- */
-async function loadNonWorkspacePopup(workspaceStorage) {
    document.getElementById("addWorkspace").addEventListener("click", addWorkspaceButtonClicked);
    document.getElementById("settings-button").addEventListener("click", settingsButtonClicked);
 
-   WorkspaceEntryLogic.listWorkspaces(workspaceStorage);
-}
-
-/**
- * Load the popup page for a workspace window.
- * Highlight the current workspace name, and do nothing if the workspace is clicked.
- * @param {WorkspaceStorage} workspaceStorage
- * @param {number} curWindowId
- */
-async function loadWorkspacePopup(workspaceStorage, curWindowId) {
-   console.log("Loading workspace popup")
-   document.getElementById("addWorkspace").style.display = "none";
-   document.getElementById("settings-button").style.display = "none";
-
-   WorkspaceEntryLogic.listWorkspaces(workspaceStorage, workspaceStorage.get(curWindowId));
+   WorkspaceEntryLogic.listWorkspaces(workspaceStorage, await Utils.getAllWindowIds());
 }
 
 /**
@@ -65,30 +33,15 @@ async function addWorkspaceButtonClicked() {
 }
 
 /**
- * Check if the window is a workspace window.
- * @param {number} windowId
- * @param {WorkspaceStorage} workspaceStorage
- * @returns {boolean}
- */
-function isWindowWorkspace(windowId, workspaceStorage) {
-   return workspaceStorage.get(windowId) !== undefined;
-}
-
-/**
  * Present a popup asking for confirmation, then clear all workspace data.
  */
 async function settingsButtonClicked() {
    const pageSettings = new PageSettings();
    pageSettings.open();
-   
-   // Open basic javascript ok cancel prompt
-   // if (confirm("Clear all workspace data?")) {
-   //    PopupActions.clearWorkspaceData();
-   // }
 }
 
 /**
- * 
+ * When a window is added or removed, update the workspace list.
  * @param {chrome.windows.window} window 
  */
 async function windowRemoved(window) {

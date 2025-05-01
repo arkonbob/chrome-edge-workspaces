@@ -26,6 +26,24 @@ export class Utils {
     }
 
     /**
+     * Retrieves all Chrome window IDs.
+     * @returns A Promise that resolves with an array of window IDs.
+     */
+    public static async getAllWindowIds(): Promise<(number | undefined)[]> {
+        return new Promise((resolve) => {
+            chrome.windows.getAll().then((windows) => {
+                const windowIds = windows.map((window) => window.id);
+                resolve(windowIds);
+            })
+                // If the windows are not found, the promise will still resolve, just with an empty array.
+                // Catch the error to prevent the console from logging it.
+                .catch(() => {
+                    resolve([]);
+                });
+        });
+    }
+
+    /**
      * Focuses a Chrome window by its ID.
      * @param windowId - The ID of the window to focus.
      */

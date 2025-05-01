@@ -206,7 +206,7 @@ img#addIcon:hover {
     background-color: var(--surface-container-color);
 }
 
-.workspace-current {
+.workspace-open {
     font-weight: 700;
 }
 
