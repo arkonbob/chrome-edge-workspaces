@@ -17,7 +17,7 @@ export class E2ECommon {
         this.browser = await puppeteer.launch({
             // slowMo: 250, // slow down by 250ms
             // headless: false,
-            headless: "new",
+            headless: "shell",
             args: [
                 `--disable-extensions-except=${ E2EConstants.EXTENSION_PATH }`,
                 `--load-extension=${ E2EConstants.EXTENSION_PATH }`
